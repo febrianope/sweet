@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Ice Cream World</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        :root {
+            --primary-pink: #FFD1DC;
+            --secondary-pink: #FFE4E1;
+            --accent-pink: #FFB6C1;
+            --text-color: #5A4868;
+            --shadow-color: rgba(255, 182, 193, 0.3);
+        }
+
+        body {
+            background: var(--primary-pink);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .music-player:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px var(--shadow-color);
+        }
+
+        .music-player img {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--secondary-pink), var(--accent-pink));
+            border-radius: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+
+        /* Interactive World */
+        .interactive-world {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 30px;
+            margin: 40px 0;
+            min-height: 400px;
+            position: relative;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            overflow: hidden;
+        }
+
+        .interactive-element {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .interactive-element:hover {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .interactive-element img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Falling Elements */
+        .falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .falling-element {
+            position: absolute;
+            z-index: -1;
+            animation: fall linear infinite;
+        }
+
+        .falling-element img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* Quote Section */
+        .quote-section {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .quote-text {
+            font-size: 1.3em;
+            color: var(--text-color);
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .quote-button {
+            background: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quote-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .interactive-world {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <div style="font-size: 24px;">▶️</div>
+        <audio id="bgMusic" loop>
+            <source src="assets/music/TakDiTanganku.mp3" type="audio/mp3">
+        </audio>
+    </div>
+
+    <!-- Falling Elements Container -->
+    <div class="falling-container" id="fallingContainer"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Sweet World ✨</h1>
+            <p>Click anywhere to add some magic!</p>
+        </div>
+
+        <!-- Interactive World -->
+        <div class="interactive-world" id="interactiveWorld">
+            <div id="elementsContainer"></div>
+        </div>
+
+        <!-- Quote Section -->
+        <div class="quote-section">
+            <h2>✨ Sweet Messages ✨</h2>
+            <p class="quote-text" id="quoteText"></p>
+            <button class="quote-button" id="newQuoteBtn">New Message</button>
+        </div>
+    </div>
+
+    <script>
+        // Image paths dengan array terpisah
+        const images = {
+            cats: [
+                'assets/images/pngwing.com.png',
+                'assets/images/pngwing.com (2).png',
+                'assets/images/pngwing.com (3).png'
+            ],
+            iceCreams: [
+                'assets/images/pngwing.com (4).png',
+                'assets/images/pngwing.com (5).png',
+                'assets/images/pngwing.com (1).png'
+            ],
+            jungkook: [
+                'assets/images/pngwing.com (6).png',
+                'assets/images/pngwing.com (7).png'
+            ]
+        };
+
+        // Function untuk mengambil gambar random
+        function getRandomImage(category) {
+            const array = images[category];
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // Array of sweet messages
+        const sweetMessages = [
+            "Life is sweet like ice cream! 🍦",
+            "Every day is a purr-fect day! 🐱",
+            "Spread sweetness everywhere you go! ✨",
+            "Keep being paw-some! 🐾",
+            "You're sweet like ice cream! 🍨",
+            "Catch those carrots for luck! 🥕",
+            "Keep sparkling and shining! ✨",
+            "You make the world sweeter! 💕"
+        ];
+
+        // Music Player Functionality
+        const musicPlayer = document.getElementById('musicPlayer');
+        const bgMusic = document.getElementById('bgMusic');
+        let isPlaying = false;
+
+        musicPlayer.addEventListener('click', () => {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicPlayer.innerHTML = '<div style="font-size: 24px;">▶️</div>';
+            } else {
+                bgMusic.play();
+                musicPlayer.innerHTML = '<div style="font-size: 24px;">⏸️</div>';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Falling Elements Animation
+        function createFallingElement() {
+            const container = document.getElementById('fallingContainer');
+            const element = document.createElement('div');
+            element.className = 'falling-element';
+            
+            const random = Math.random();
+            if (random < 0.3) { // 30% chance for carrot
+                element.textContent = '🥕';
+                element.style.fontSize = '24px';
+            } else {
+                const img = document.createElement('img');
+                img.src = random < 0.65 ? 
+                    getRandomImage('cats') : 
+                    getRandomImage('iceCreams');
+                element.appendChild(img);
+            }
+
+            const startPos = Math.random() * window.innerWidth;
+            const duration = 5 + Math.random() * 5;
+            element.style.left = `${startPos}px`;
+            element.style.animation = `fall ${duration}s linear infinite`;
+
+            container.appendChild(element);
+            
+            setTimeout(() => element.remove(), duration * 1000);
+        }
+
+        // Start falling elements
+        setInterval(createFallingElement, 500);
+
+        // Interactive World Click Handler
+        const interactiveWorld = document.getElementById('interactiveWorld');
+        
+        interactiveWorld.addEventListener('click', (e) => {
+            const element = document.createElement('div');
+            element.className = 'interactive-element';
+            
+            const random = Math.random();
+            if (random < 0.2) { // 20% chance for carrot
+                element.textContent = '🥕';
+                element.style.fontSize = '40px';
+            } else {
+                const img = document.createElement('img');
+                if (random < 0.5) {
+                    img.src = getRandomImage('cats');
+                } else if (random < 0.8) {
+                    img.src = getRandomImage('iceCreams');
+                } else {
+                    img.src = getRandomImage('jungkook');
+                }
+                element.appendChild(img);
+            }
+
+            const rect = interactiveWorld.getBoundingClientRect();
+            const x = e.clientX - rect.left - 30;
+            const y = e.clientY - rect.top - 30;
+            
+            element.style.left = `${x}px`;
+            element.style.top = `${y}px`;
+            
+            interactiveWorld.appendChild(element);
+            
+            gsap.from(element, {
+                scale: 0,
+                rotation: 360,
+                duration: 0.5,
+                ease: "back.out(1.7)"
+            });
+        });
+
+        // Quote Functionality
+        const quoteText = document.getElementById('quoteText');
+        const newQuoteBtn = document.getElementById('newQuoteBtn');
+
+        function updateQuote() {
+            const randomIndex = Math.floor(Math.random() * sweetMessages.length);
+            gsap.to(quoteText, {
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => {
+                    quoteText.textContent = sweetMessages[randomIndex];
+                    gsap.to(quoteText, {
+                        opacity: 1,
+                        duration: 0.3
+                    });
+                }
+            });
+        }
+
+        newQuoteBtn.addEventListener('click', updateQuote);
+        updateQuote(); // Initial quote
+
+        // Initialize GSAP Animations
+        gsap.from('.header', {
+            y: -50,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.out"
+        });
+
+        gsap.from('.interactive-world', {
+            scale: 0.9,
+            opacity: 0,
+            duration: 1,
+            delay: 0.3,
+            ease: "power2.out"
+        });
+
+        gsap.from('.quote-section', {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            delay: 0.6,
+            ease: "power2.out"
+        });
+    </script>
+</body>
+</html>
